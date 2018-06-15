@@ -83,6 +83,8 @@ public abstract class BaseActivity<SV extends ViewDataBinding> extends AppCompat
         mBaseBinding.toolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                InputMethodManager imm = (InputMethodManager) BaseActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 onBackPressed();
             }
         });
