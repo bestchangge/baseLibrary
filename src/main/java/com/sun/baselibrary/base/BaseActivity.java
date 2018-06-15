@@ -61,7 +61,7 @@ public abstract class BaseActivity<SV extends ViewDataBinding> extends AppCompat
         getWindow().setContentView(mBaseBinding.getRoot());
 
         // 设置透明状态栏
-        StatusBarUtil.setColor(this, getColor(R.color.colorTheme), 0);
+        StatusBarUtil.setColor(this, ContextCompat.getColor(this,R.color.colorTheme), 0);
         mMultipleStatusView = getView(R.id.multipleStatusView);
 
         setToolBar();
