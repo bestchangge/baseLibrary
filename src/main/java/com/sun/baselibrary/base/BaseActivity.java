@@ -1,23 +1,26 @@
 package com.sun.baselibrary.base;
 
+import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.RelativeLayout;
 
 import com.classic.common.MultipleStatusView;
 import com.sun.baselibrary.R;
 import com.sun.baselibrary.databinding.ActivityBaseBinding;
+import com.sun.baselibrary.view.loadingview.LoadingDialog;
 import com.sun.baselibrary.view.statusbar.StatusBarUtil;
-
-import rx.subscriptions.CompositeSubscription;
 
 /**
  * Created by sun on 17/08/09.
@@ -28,8 +31,6 @@ public abstract class BaseActivity<SV extends ViewDataBinding> extends AppCompat
     protected SV bindingView;
     private ActivityBaseBinding mBaseBinding;
     private MultipleStatusView mMultipleStatusView;
-
-    private CompositeSubscription mCompositeSubscription;
 
     protected <T extends View> T getView(int id) {
         return (T) findViewById(id);
@@ -44,7 +45,7 @@ public abstract class BaseActivity<SV extends ViewDataBinding> extends AppCompat
     }
 
     protected abstract int getLayoutId();
-    public void initView(){};
+    public void initView(){}
     public abstract void initData();
 
     @Override
@@ -62,6 +63,9 @@ public abstract class BaseActivity<SV extends ViewDataBinding> extends AppCompat
 
         // 设置透明状态栏
         StatusBarUtil.setColor(this, ContextCompat.getColor(this,R.color.colorTheme), 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility( View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
         mMultipleStatusView = getView(R.id.multipleStatusView);
 
         setToolBar();
@@ -121,6 +125,25 @@ public abstract class BaseActivity<SV extends ViewDataBinding> extends AppCompat
 
     protected MultipleStatusView getmMultipleStatusView(){
         return mMultipleStatusView;
+    }
+
+    private LoadingDialog progress;
+    protected void dismissProgres() {
+        if (progress == null) {
+            return;
+        }
+        if (progress.isShowing()) {
+            progress.dismiss();
+        }
+    }
+
+    protected void showProgress() {
+        if (progress == null) {
+            progress = LoadingDialog.createProgressDialog(this);
+        }
+        if (!progress.isShowing()) {
+            progress.show();
+        }
     }
 
 }

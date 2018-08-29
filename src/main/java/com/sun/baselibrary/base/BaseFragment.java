@@ -12,9 +12,7 @@ import android.widget.RelativeLayout;
 
 import com.classic.common.MultipleStatusView;
 import com.sun.baselibrary.R;
-
-import rx.Subscription;
-import rx.subscriptions.CompositeSubscription;
+import com.sun.baselibrary.view.loadingview.LoadingDialog;
 
 
 /**
@@ -26,23 +24,20 @@ public abstract class BaseFragment<SV extends ViewDataBinding> extends Fragment 
     protected SV bindingView;
     // fragment是否显示了
     protected boolean mIsVisible = false;
-    // 加载中
     // 内容布局
     protected RelativeLayout mContainer;
-    // 动画
-    private CompositeSubscription mCompositeSubscription;
     private MultipleStatusView mMultipleStatusView;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View ll = inflater.inflate(R.layout.fragment_base, null);
+        View view = inflater.inflate(R.layout.fragment_base, null);
         bindingView = DataBindingUtil.inflate(getActivity().getLayoutInflater(), setContent(), null, false);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         bindingView.getRoot().setLayoutParams(params);
-        mContainer = (RelativeLayout) ll.findViewById(R.id.container);
+        mContainer = (RelativeLayout) view.findViewById(R.id.container);
         mContainer.addView(bindingView.getRoot());
-        return ll;
+        return view;
     }
 
     /**
@@ -92,6 +87,9 @@ public abstract class BaseFragment<SV extends ViewDataBinding> extends Fragment 
      */
     public abstract int setContent();
 
+    protected MultipleStatusView getmMultipleStatusView(){
+        return mMultipleStatusView;
+    }
 
     /**
      * 显示加载中状态
@@ -128,24 +126,22 @@ public abstract class BaseFragment<SV extends ViewDataBinding> extends Fragment 
         mMultipleStatusView.showEmpty();
     }
 
-    public void addSubscription(Subscription s) {
-        if (this.mCompositeSubscription == null) {
-            this.mCompositeSubscription = new CompositeSubscription();
+    private LoadingDialog progress;
+    protected void dismissProgres() {
+        if (progress == null) {
+            return;
         }
-        this.mCompositeSubscription.add(s);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (this.mCompositeSubscription != null && mCompositeSubscription.hasSubscriptions()) {
-            this.mCompositeSubscription.unsubscribe();
+        if (progress.isShowing()) {
+            progress.dismiss();
         }
     }
 
-    public void removeSubscription() {
-        if (this.mCompositeSubscription != null && mCompositeSubscription.hasSubscriptions()) {
-            this.mCompositeSubscription.unsubscribe();
+    protected void showProgress() {
+        if (progress == null) {
+            progress = LoadingDialog.createProgressDialog(getActivity());
+        }
+        if (!progress.isShowing()) {
+            progress.show();
         }
     }
 }

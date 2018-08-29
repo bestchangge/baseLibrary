@@ -2,7 +2,7 @@
 <resources>
 
     <!--主题颜色-->
-    <color name="colorTheme">#042E84</color>
+    <color name="colorTheme">#0F99FA</color>
 
     <!--页面背景的颜色-->
     <color name="colorPageBg">#f2f4f5</color>

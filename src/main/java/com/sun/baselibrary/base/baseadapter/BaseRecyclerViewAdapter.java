@@ -1,6 +1,12 @@
 package com.sun.baselibrary.base.baseadapter;
 
+import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
+import android.support.annotation.LayoutRes;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,64 +14,44 @@ import java.util.List;
 /**
  * BaseRecyclerViewAdapter
  */
-public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<BaseRecyclerViewHolder> {
+public abstract class BaseRecyclerViewAdapter<T,D extends ViewDataBinding> extends RecyclerView.Adapter {
 
-    protected List<T> data = new ArrayList<>();
     protected OnItemClickListener<T> listener;
-    protected OnItemLongClickListener<T> onItemLongClickListener;
+    protected Context context;
+    protected List<T> items;
 
-    @Override
-    public void onBindViewHolder(BaseRecyclerViewHolder holder, final int position) {
-        holder.onBaseBindViewHolder(data.get(position), position);
-
-//        holder.itemView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (listener!=null){
-//                    listener.onClick(data.get(position), position);
-//                }
-//            }
-//        });
-
+    public BaseRecyclerViewAdapter(Context context)
+    {
+        this.context = context;
+        this.items = new ArrayList<>();
     }
 
     @Override
-    public int getItemCount() {
-        return data.size();
+    public int getItemCount()
+    {
+        return this.items.size();
     }
 
-    public void addAll(List<T> data) {
-        this.data.addAll(data);
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
+    {
+        D binding = DataBindingUtil.inflate(LayoutInflater.from(this.context), this.getLayoutResId(viewType), parent, false);
+        return new BaseRecyclerViewHolder(binding.getRoot()){};
     }
 
-    public void add(T object) {
-        data.add(object);
-    }
-
-    public void clear() {
-        data.clear();
-    }
-
-    public void remove(T object) {
-        data.remove(object);
-    }
-    public void remove(int position) {
-        data.remove(position);
-    }
-    public void removeAll(List<T> data) {
-        this.data.retainAll(data);
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position)
+    {
+        D binding = DataBindingUtil.getBinding(holder.itemView);
+        this.onBindItem(binding, this.items.get(position));
     }
 
     public void setOnItemClickListener(OnItemClickListener<T> listener) {
         this.listener = listener;
     }
 
+    protected abstract @LayoutRes int getLayoutResId(int viewType);
 
-    public List<T> getData() {
-        return data;
-    }
+    protected abstract void onBindItem(D binding, T item);
 
-    public void setOnItemLongClickListener(OnItemLongClickListener<T> onItemLongClickListener) {
-        this.onItemLongClickListener = onItemLongClickListener;
-    }
 }
